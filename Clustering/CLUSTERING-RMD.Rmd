@@ -1,0 +1,343 @@
+---
+title: "Clustering-assignment-FML"
+author: "Anurodh Singh"
+date: "2023-11-10"
+output:
+  pdf_document: default
+  html_document: default
+---
+#Interpretation
+
+
+
+1.The equities analyst or investor is seeking guidance on identifying the best companies for        investment in the pharmaceutical industry.
+2.Through clustering techniques, the goal is to determine which clusters or groups of companies     would be optimal for investment.
+3.Among the clustering methods employed, the "K-means" method stands out for providing the best     clusters and a cohesive representation in comparison to "DBSCAN" and "HIERARCHIAL" clsutering     methods.
+4.Cluster 4 and 3 from the K-means algorithm are identified as the most favorable due to            appropriate values for market capitalization, return on equity, return on assets, asset           turnover, estimated   revenue growth, and net profit margin.
+5.Negative or lower values for beta, price/earnings ratio, and leverage are also considered         favorable.
+6.Variables Analysis:
+ a.Market Capitalization: Larger values may suggest stability or growth potential.
+ b.Return on Equity (ROE): Positive values indicate profitability from shareholders' equity.
+ c.Return on Assets (ROA): Positive values imply efficient asset utilization.
+ d.Asset Turnover: Positive values indicate effective asset use for revenue generation.
+ e.Estimated Revenue Growth: Positive values suggest potential revenue increase.
+ f.Net Profit Margin: Positive values indicate a favorable percentage of revenue translating into    profit.
+ g.Beta: Negative values can provide risk diversification.
+ h.Price/Earnings Ratio (P/E Ratio): Lower values might indicate a relatively cheaper stock.
+ i.Leverage: Lower values suggest lower reliance on debt financing.
+
+Cluster Evaluation:
+ Using the elbow method with two clusters, 34.1% variance between clusters.
+ Silhouette method with multiple clusters has a higher 60.9% variance between clusters.
+ Higher variance between clusters suggests better separation, favoring method.
+ Generally, a higher percentage of variance between clusters is desirable.
+ Finally the silhouette method  appears to offer better separation between clusters, as evidenced  by the higher percentage of variance between clusters.
+ This suggests that method may provide more distinct and well-defined clusters for investment      decisions.
+ The results of the clustering analysis reveal distinct patterns and characteristics within each cluster:
+
+Cluster 1: Buy Cluster
+
+Highest median for the "Hold" recommendation.
+Companies from Switzerland and the United States.
+Listed on the NYSE.
+Cluster 2: Sceptical Cluster
+
+Even distribution across AMEX, NASDAQ, and NYSE.
+Distinct "Hold" and "Moderate Buy" medians.
+Companies from the United States and Germany.
+Cluster 3: Moderate Buy Cluster
+
+Listed on the NYSE.
+Separate counts for the United States, Ireland, and France.
+Equal "Moderate Buy" and "Moderate Sell" medians.
+Cluster 4: Hold Cluster
+
+Distributed throughout the United States and the United Kingdom.
+Listed shares with the same "Hold" and "Moderate Buy" medians.
+Cluster 5: High Hold Cluster
+
+Only on the NYSE.
+Equally distributed in the US and Canada.
+Medians for "Hold" and "Moderate Buy."
+Pattern in Media Recommendation Variable:
+
+"Hold" recommendation applies to Clusters 1 and 2.
+"Moderate Buy" recommendation for Clusters 3, 4, and 5.
+
+Summary of Clusters:
+
+Cluster 1: Buy Cluster
+Cluster 2: Sceptical Cluster
+Cluster 3: Moderate Buy Cluster
+Cluster 4: Hold Cluster
+Cluster 5: High Hold Cluster
+These clusters not only demonstrate geographical and stock exchange distribution but also showcase specific trends in media recommendations, providing valuable insights for investors and equities analysts.
+
+
+
+#SUMMARY
+
+
+
+1.Imported the given dataset.
+2.Examined variable types, identifying numerical and categorical variables.
+3.Scaled the data for convenience.
+4.Utilized the cluster package, performing k-means clustering with k=2.
+5.Obtained results with clusters of sizes 10, 11.
+6.Used the elbow method to find the optimal k, which turned out to be 2.
+7.Performed k-means clustering with k=2, but clusters were not satisfactory.
+8.Employed the silhouette method, determining k=5 as the optimal value.
+9.Obtained well-defined clusters using k=5 suggested by the silhouette method.
+10.Analyzed cluster properties with k-means clustering and 5 clusters of sizes 3, 5, 3, 4, 6.
+11.Examined output centers, the number of companies in each cluster, and identified the cluster of    the 13th observation.
+12.Visualized the output using the fviz_cluster function.
+13.Applied DBSCAN cluster algorithm with random values for eps=30 and min. points=1.
+14.Found 7 clusters and 0 noise points using Euclidean distances.
+15.Plotted results and printed cluster details using fviz_cluster.
+16.Conducted Hierarchical clustering, obtaining a dendrogram for the 21 companies based on          variables, showing closeness.
+17.Plotted a heatmap for hierarchical clustering.
+18.Interpreted clusters concerning numerical variables (10 to 12) not used in forming clusters.
+19.Provided a structured analysis of the pharmaceutical industry based on financial metrics,         revealing patterns and insights.
+20.Named each cluster appropriately using variables in the dataset, with following names : 
+   Cluster 1 :-Buy Cluster
+   Cluster 2 :- Sceptical Cluster
+   Cluster 3 :- Moderate Buy Cluster 
+   Cluster 4 :- Hold Cluster
+   Cluster 5 :- High Hold Cluster
+
+```{r setup, include=FALSE, hide=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Q.1.Use only the numerical variables (1 to 9) to cluster the 21 firms. Justify the various choices made in conducting the cluster analysis, such as weights for different variables, the specific clustering algorithm(s) used, the number of clusters formed, and so on. 
+Importing the given data
+```{r}
+pharma_given <- read.csv("C:/Users/ASUS/Downloads/Pharmaceuticals.csv")
+summary(pharma_given)
+```
+```{r}
+str(pharma_given)
+```
+
+
+```{r}
+# Scaling the numerical variables
+pharma1 <- pharma_given[ ,-c(1,2,12,13,14)]
+pharma1
+pharma_scaled <- scale(pharma1)
+pharma_scaled
+```
+
+```{r}
+set.seed(321)
+# Choosing a clustering algorithm
+library(cluster)
+
+# Setting the number of clusters to 2
+k <- 2
+
+# Clustering the data using k-means clustering
+kmeans_model <- kmeans(pharma_scaled, k)
+kmeans_model
+```
+
+```{r}
+# Getting the cluster assignments
+cluster_assignments <- kmeans_model$cluster
+
+# Calculating the mean values of the numerical variables in each cluster
+cluster_means <- aggregate(pharma_scaled, by = list(cluster_assignments), FUN = mean)
+
+# Printing the cluster means
+View(cluster_means)
+```
+
+
+```{r}
+library(tidyverse)  # for data manipulation
+library(factoextra) # for clustering & visualization
+library(ISLR)
+
+#Finding the optimal value of 'K' using elbow method
+
+fviz_nbclust(pharma_scaled, kmeans, method = "wss")
+```
+We can see that the optimal value from the graph above is 2
+
+```{r}
+#Now applying silhouette method to obtain the optimal value of 'K'
+fviz_nbclust(pharma_scaled, kmeans, method = "silhouette")
+```
+```{r}
+set.seed(321)
+#applying the clustering algorithm
+
+# Setting the number of clusters to 5 as obtained by silhouette method
+k <- 5
+
+# Clustering the data using k-means clustering
+kmeans_model_sil <- kmeans(pharma_scaled, k)
+kmeans_model_sil
+```
+
+```{r}
+
+cluster_assignments_sil <- kmeans_model_sil$cluster
+
+# Calculating the mean values of the numerical variables in each cluster
+cluster_means_sil <- aggregate(pharma_scaled, by = list(cluster_assignments_sil), FUN = mean)
+
+# Printing the cluster means
+print(cluster_means_sil)
+
+```
+```{r}
+# Visualizing the output
+
+kmeans_model_sil$centers # output the centers
+
+kmeans_model_sil$size # Number of companies in each cluster
+
+kmeans_model_sil$cluster[13] # Identify the cluster of the 13th observation as an example
+
+fviz_cluster(kmeans_model_sil, data = pharma_scaled) # Visualize the output
+```
+
+**DBSCAN**
+```{r}
+library("dbscan") 
+library("fpc")
+```
+
+```{r}
+db <- dbscan::dbscan(pharma1, eps = 30 , minPts =1) #performing clustering
+
+print(db) #printing cluster details
+
+```
+```{r}
+fviz_cluster(db, pharma1,   stand = FALSE, frame = FALSE, geom = "point")
+```
+
+
+
+```{r}
+df <- pharma1[, 1:9]
+
+set.seed(321)
+db <- fpc::dbscan(df, eps = 30, MinPts = 1) # DBSCAN using fpc package
+
+print(db) # showing clusters' details
+```
+
+```{r}
+#Plotting the knee method graph for DBSCAN method
+dbscan::kNNdistplot(df, k =  7)
+abline(h = 30, lty = 2)
+```
+
+**Hierarchical**
+
+Compute Euclidean distance
+```{r}
+# (to compute other distance measures, change the value in method = )
+d <- dist(pharma1, method = "euclidean")
+d.norm <- dist(pharma1[,c(8,9)], method = "euclidean")
+```
+
+```{r}
+# normalizing input variables
+Sorted.data.norm <- sapply(pharma1, scale)
+
+# adding row names: utilities
+row.names(Sorted.data.norm) <- row.names(pharma1) 
+
+# computing normalized distance based on variables ROA and Asset Turnover
+d.norm <- dist(Sorted.data.norm[,c(8,9)], method = "euclidean")
+```
+
+```{r}
+# computing normalized distance based on all 9 variables
+d.norm <- dist(Sorted.data.norm, method = "euclidean")
+
+# in hclust() set argument method =  
+# to "ward.D", "single", "complete", "average", "median", or "centroid"
+hc1 <- hclust(d.norm, method = "single")
+plot(hc1, hang = -1, ann = FALSE)
+hc2 <- hclust(d.norm, method = "average")
+plot(hc2, hang = -1, ann = FALSE)
+```
+
+```{r}
+memb <- cutree(hc1, k = 6)
+memb
+memb <- cutree(hc2, k = 6)
+memb
+```
+
+```{r}
+# setting labels as cluster membership and utility name
+row.names(Sorted.data.norm) <- paste(memb, ": ", row.names(pharma1), sep = "")
+
+# plotting heatmap 
+# rev() reverses the color mapping to large = dark
+heatmap(as.matrix(Sorted.data.norm), Colv = NA, hclustfun = hclust, 
+        col=rev(paste("gray",1:99,sep="")))
+```
+Q.2.Interpret the clusters with respect to the numerical variables used in forming the clusters. Is there a pattern in the clusters with respect to the numerical variables (10 to 12)? (those not used in forming the clusters)
+```{r}
+library(dplyr)
+set.seed(3)
+p <- pharma_given[,c(12,13,14)]%>% mutate(clusters = kmeans_model_sil$cluster)
+View(p)
+```
+
+
+
+```{r}
+
+# Loading required libraries
+library(ggplot2)
+library(gridExtra)
+
+# Assuming "positive" is a valid geom_bar argument, otherwise replace it with the correct geom_bar function
+
+plot1 <- ggplot(p, mapping = aes(factor(clusters), fill = Median_Recommendation)) + geom_bar(position = "stack")
+plot2 <- ggplot(p, mapping = aes(factor(clusters), fill = Location)) + geom_bar(position = "stack")
+plot3 <- ggplot(p, mapping = aes(factor(clusters), fill = Exchange)) + geom_bar(position = "stack")
+plot4 <- ggplot(p, mapping = aes(factor(clusters), fill = Median_Recommendation)) + geom_bar(position = "stack")
+
+# Combining the plots using grid.arrange
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
+
+```
+
+Q.3.Provide an appropriate name for each cluster using any or all of the variables in the dataset.
+
+```{r}
+#1 Cluster: In this cluster, which also has medians for Hold, Moderate Buy, Moderate Sell, and Strong Buy, the Hold median is the highest. They hail from Switzerland, the United States, and are listed on the NYSE.
+
+#2 Cluster: Despite the fact that the companies are evenly distributed across the AMEX, NASDAQ, and NYSE, there is a distinct Hold and Moderate Buy median and a distinct count between the United States and Germany.
+
+#3 Cluster: listed on the NYSE, with separate counts for the United States, Ireland, and France, and moderate buy and sell medians that are equal.
+
+#4, Cluster: distributed throughout the United States and the United Kingdom and listed in, shares the same hold and moderate buy medians 
+
+#Cluster 5: # only on the NYSE, equally distributed in the US and Canada, with medians of Hold and Moderate Buy
+
+#The clusters follow a particular pattern in relation to the media recommendation variable:
+
+#Hold Recommendation applies to Clusters 1 and 2.
+
+#The buy recommendation for Clusters 3, 4, and 5 is moderate.
+
+
+#Cluster 1 :-Buy Cluster
+#Cluster 2 :- Sceptical Cluster
+#Cluster 3 :- Moderate Buy Cluster 
+#Cluster 4 :- Hold Cluster
+#Cluster 5 :- High Hold Cluster
+```
+
+
